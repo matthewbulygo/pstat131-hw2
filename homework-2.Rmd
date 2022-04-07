@@ -1,6 +1,7 @@
 ---
-title: "Homework 2"
-author: "PSTAT 131/231"
+title: "PSTAT 131 Homework 2"
+author: "Matthew Bulygo"
+date: '2022-04-06'
 output:
     html_document:
       toc: true
