@@ -1767,6 +1767,16 @@ to find the appropriate step functions to use.</p>
 hypothetical female abalone with longest_shell = 0.50, diameter = 0.10,
 height = 0.30, whole_weight = 4, shucked_weight = 1, viscera_weight = 2,
 shell_weight = 1.</p>
+<pre class="r"><code>lm_fit &lt;- fit(lm_wflow, abalone_train)
+
+female_abalone &lt;- data.frame(longest_shell=0.50, diameter=0.10, height=0.30,
+                  whole_weight=4, shucked_weight=1, viscera_weight=2, shell_weight=1, type=&#39;F&#39;)
+
+predict(lm_fit, female_abalone)</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   .pred
+##   &lt;dbl&gt;
+## 1  25.6</code></pre>
 </div>
 <div id="question-7" class="section level3">
 <h3>Question 7</h3>
@@ -1782,6 +1792,22 @@ assess your model’s performance).</li>
 <li>Finally, apply your metric set to the tibble, report the results,
 and interpret the <em>R<sup>2</sup></em> value.</li>
 </ol>
+<pre class="r"><code>library(yardstick)
+
+abalone_metrics &lt;- metric_set(rmse, rsq, mae)
+abalone_train_res &lt;- predict(lm_fit, new_data = abalone_train %&gt;% select(-age))
+abalone_train_res &lt;- bind_cols(abalone_train_res, abalone_train %&gt;% select(age))
+
+abalone_metrics(abalone_train_res, truth = age, 
+                estimate = .pred)</code></pre>
+<pre><code>## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rmse    standard       2.15 
+## 2 rsq     standard       0.549
+## 3 mae     standard       1.56</code></pre>
+<p>The r-squared is 0.55 which means our model doesn’t really fit our
+training set.</p>
 </div>
 <div id="required-for-231-students" class="section level3">
 <h3>Required for 231 Students</h3>
