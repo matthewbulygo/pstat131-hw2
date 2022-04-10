@@ -26,17 +26,46 @@ The full abalone data set is located in the `\data` subdirectory. Read it into *
 
 Make sure you load the `tidyverse` and `tidymodels`!
 
+```{r}
+library(tidyverse)
+library(tidymodels)
+
+abalone <- read_csv("data/abalone.csv", show_col_types = FALSE)
+abalone
+```
 ### Question 1
 
 Your goal is to predict abalone age, which is calculated as the number of rings plus 1.5. Notice there currently is no `age` variable in the data set. Add `age` to the data set.
 
 Assess and describe the distribution of `age`.
 
+```{r}
+abalone$age <- abalone$rings + 1.5
+abalone
+```
+```{r}
+abalone %>% 
+  ggplot(aes(x = age)) +
+  geom_histogram(bins = 60) +
+  theme_bw()
+```
+
+Most abalone are 8-12 years old.
+
 ### Question 2
 
 Split the abalone data into a training set and a testing set. Use stratified sampling. You should decide on appropriate percentages for splitting the data.
 
 *Remember that you'll need to set a seed at the beginning of the document to reproduce your results.*
+
+```{r}
+set.seed(42)
+
+abalone_split <- initial_split(abalone, prop = 0.80, strata=age)
+                              
+abalone_train <- training(abalone_split)
+abalone_test <- testing(abalone_split)
+```
 
 ### Question 3
 
@@ -46,21 +75,64 @@ Steps for your recipe:
 
 1.  dummy code any categorical predictors
 
+```{r}
+abalone_recipe <- recipe(age ~ type + longest_shell +
+          diameter + height + whole_weight + 
+            shucked_weight + viscera_weight +
+            shell_weight, data = abalone_train) %>%
+  step_dummy(all_nominal_predictors())
+```
+
+We shouldn't use rings to predict age because we want to see if we can predict age with easier to obtain information. 
+
 2.  create interactions between
 
     -   `type` and `shucked_weight`,
     -   `longest_shell` and `diameter`,
     -   `shucked_weight` and `shell_weight`
 
+```{r}
+int_mod_1 <- abalone_recipe %>%
+  step_interact(terms = ~ type:shucked_weight)
+
+int_mod_2 <- abalone_recipe %>%
+  step_interact(terms = ~ longest_shell:diameter)
+
+int_mod_3 <- abalone_recipe %>%
+  step_interact(terms = ~ shucked_weight:shell_weight)
+```
+
 3.  center all predictors, and
 
 4.  scale all predictors.
 
+```{r}
+norm_abalone <- abalone_recipe %>%
+  step_normalize(all_nominal_predictors())
+```
+
 You'll need to investigate the `tidymodels` documentation to find the appropriate step functions to use.
+
+```{r}
+abalone_recipe <- recipe(age ~ type + longest_shell +
+          diameter + height + whole_weight + 
+            shucked_weight + viscera_weight +
+            shell_weight, data = abalone_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ type:shucked_weight) %>%
+  step_interact(terms = ~ longest_shell:diameter) %>%
+  step_interact(terms = ~ shucked_weight:shell_weight) %>%
+  step_normalize(all_nominal_predictors())
+```
 
 ### Question 4
 
 Create and store a linear regression object using the `"lm"` engine.
+
+```{r}
+lm_model <- linear_reg() %>% 
+  set_engine("lm")
+```
 
 ### Question 5
 
@@ -69,6 +141,12 @@ Now:
 1.  set up an empty workflow,
 2.  add the model you created in Question 4, and
 3.  add the recipe that you created in Question 3.
+
+```{r}
+lm_wflow <- workflow() %>% 
+  add_model(lm_model) %>% 
+  add_recipe(abalone_recipe)
+```
 
 ### Question 6
 

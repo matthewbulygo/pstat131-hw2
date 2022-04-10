@@ -1626,12 +1626,55 @@ Take a moment to read through the codebook
 variable definitions.</p>
 <p>Make sure you load the <code>tidyverse</code> and
 <code>tidymodels</code>!</p>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)
+
+abalone &lt;- read_csv(&quot;data/abalone.csv&quot;, show_col_types = FALSE)
+abalone</code></pre>
+<pre><code>## # A tibble: 4,177 x 9
+##    type  longest_shell diameter height whole_weight shucked_weight
+##    &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;
+##  1 M             0.455    0.365  0.095        0.514         0.224 
+##  2 M             0.35     0.265  0.09         0.226         0.0995
+##  3 F             0.53     0.42   0.135        0.677         0.256 
+##  4 M             0.44     0.365  0.125        0.516         0.216 
+##  5 I             0.33     0.255  0.08         0.205         0.0895
+##  6 I             0.425    0.3    0.095        0.352         0.141 
+##  7 F             0.53     0.415  0.15         0.778         0.237 
+##  8 F             0.545    0.425  0.125        0.768         0.294 
+##  9 M             0.475    0.37   0.125        0.509         0.216 
+## 10 F             0.55     0.44   0.15         0.894         0.314 
+## # ... with 4,167 more rows, and 3 more variables: viscera_weight &lt;dbl&gt;,
+## #   shell_weight &lt;dbl&gt;, rings &lt;dbl&gt;</code></pre>
 <div id="question-1" class="section level3">
 <h3>Question 1</h3>
 <p>Your goal is to predict abalone age, which is calculated as the
 number of rings plus 1.5. Notice there currently is no <code>age</code>
 variable in the data set. Add <code>age</code> to the data set.</p>
 <p>Assess and describe the distribution of <code>age</code>.</p>
+<pre class="r"><code>abalone$age &lt;- abalone$rings + 1.5
+abalone</code></pre>
+<pre><code>## # A tibble: 4,177 x 10
+##    type  longest_shell diameter height whole_weight shucked_weight
+##    &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;
+##  1 M             0.455    0.365  0.095        0.514         0.224 
+##  2 M             0.35     0.265  0.09         0.226         0.0995
+##  3 F             0.53     0.42   0.135        0.677         0.256 
+##  4 M             0.44     0.365  0.125        0.516         0.216 
+##  5 I             0.33     0.255  0.08         0.205         0.0895
+##  6 I             0.425    0.3    0.095        0.352         0.141 
+##  7 F             0.53     0.415  0.15         0.778         0.237 
+##  8 F             0.545    0.425  0.125        0.768         0.294 
+##  9 M             0.475    0.37   0.125        0.509         0.216 
+## 10 F             0.55     0.44   0.15         0.894         0.314 
+## # ... with 4,167 more rows, and 4 more variables: viscera_weight &lt;dbl&gt;,
+## #   shell_weight &lt;dbl&gt;, rings &lt;dbl&gt;, age &lt;dbl&gt;</code></pre>
+<pre class="r"><code>abalone %&gt;% 
+  ggplot(aes(x = age)) +
+  geom_histogram(bins = 60) +
+  theme_bw()</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<p>Most abalone are 8-12 years old.</p>
 </div>
 <div id="question-2" class="section level3">
 <h3>Question 2</h3>
@@ -1640,6 +1683,12 @@ stratified sampling. You should decide on appropriate percentages for
 splitting the data.</p>
 <p><em>Remember that you’ll need to set a seed at the beginning of the
 document to reproduce your results.</em></p>
+<pre class="r"><code>set.seed(42)
+
+abalone_split &lt;- initial_split(abalone, prop = 0.80, strata=age)
+                              
+abalone_train &lt;- training(abalone_split)
+abalone_test &lt;- testing(abalone_split)</code></pre>
 </div>
 <div id="question-3" class="section level3">
 <h3>Question 3</h3>
@@ -1650,23 +1699,55 @@ predict <code>age</code>. Explain why you shouldn’t use
 <code>rings</code> to predict <code>age</code>.</p>
 <p>Steps for your recipe:</p>
 <ol style="list-style-type: decimal">
-<li><p>dummy code any categorical predictors</p></li>
+<li>dummy code any categorical predictors</li>
+</ol>
+<pre class="r"><code>abalone_recipe &lt;- recipe(age ~ type + longest_shell +
+          diameter + height + whole_weight + 
+            shucked_weight + viscera_weight +
+            shell_weight, data = abalone_train) %&gt;%
+  step_dummy(all_nominal_predictors())</code></pre>
+<p>We shouldn’t use rings to predict age because we want to see if we
+can predict age with easier to obtain information.</p>
+<ol start="2" style="list-style-type: decimal">
 <li><p>create interactions between</p>
 <ul>
 <li><code>type</code> and <code>shucked_weight</code>,</li>
 <li><code>longest_shell</code> and <code>diameter</code>,</li>
 <li><code>shucked_weight</code> and <code>shell_weight</code></li>
 </ul></li>
+</ol>
+<pre class="r"><code>int_mod_1 &lt;- abalone_recipe %&gt;%
+  step_interact(terms = ~ type:shucked_weight)
+
+int_mod_2 &lt;- abalone_recipe %&gt;%
+  step_interact(terms = ~ longest_shell:diameter)
+
+int_mod_3 &lt;- abalone_recipe %&gt;%
+  step_interact(terms = ~ shucked_weight:shell_weight)</code></pre>
+<ol start="3" style="list-style-type: decimal">
 <li><p>center all predictors, and</p></li>
 <li><p>scale all predictors.</p></li>
 </ol>
+<pre class="r"><code>norm_abalone &lt;- abalone_recipe %&gt;%
+  step_normalize(all_nominal_predictors())</code></pre>
 <p>You’ll need to investigate the <code>tidymodels</code> documentation
 to find the appropriate step functions to use.</p>
+<pre class="r"><code>abalone_recipe &lt;- recipe(age ~ type + longest_shell +
+          diameter + height + whole_weight + 
+            shucked_weight + viscera_weight +
+            shell_weight, data = abalone_train) %&gt;%
+  step_dummy(all_nominal_predictors()) %&gt;%
+  step_interact(terms = ~ type:shucked_weight) %&gt;%
+  step_interact(terms = ~ longest_shell:diameter) %&gt;%
+  step_interact(terms = ~ shucked_weight:shell_weight) %&gt;%
+  step_normalize(all_nominal_predictors())</code></pre>
 </div>
 <div id="question-4" class="section level3">
 <h3>Question 4</h3>
 <p>Create and store a linear regression object using the
 <code>&quot;lm&quot;</code> engine.</p>
+<pre class="r"><code>lm_model &lt;- linear_reg() %&gt;% 
+  set_engine(&quot;lm&quot;)</code></pre>
 </div>
 <div id="question-5" class="section level3">
 <h3>Question 5</h3>
@@ -1676,6 +1757,9 @@ to find the appropriate step functions to use.</p>
 <li>add the model you created in Question 4, and</li>
 <li>add the recipe that you created in Question 3.</li>
 </ol>
+<pre class="r"><code>lm_wflow &lt;- workflow() %&gt;% 
+  add_model(lm_model) %&gt;% 
+  add_recipe(abalone_recipe)</code></pre>
 </div>
 <div id="question-6" class="section level3">
 <h3>Question 6</h3>
